@@ -12,6 +12,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jzeus.version>1.0-SNAPSHOT</jzeus.version>
     </properties>
     <dependencies>
         <dependency>
@@ -32,10 +33,23 @@
         <dependency>
             <groupId>jzeus</groupId>
             <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${jzeus.version}</version>
         </dependency>
+        <dependency>
+            <groupId>jzeus</groupId>
+            <artifactId>io</artifactId>
+            <version>${jzeus.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/info.picocli/picocli -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.7.6</version>
+        </dependency>
+
     </dependencies>
     <build>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -77,9 +91,10 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ariel.MainKt</mainClass>
+                                    <mainClass>ariel.CoreKt</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

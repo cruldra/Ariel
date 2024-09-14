@@ -4,18 +4,21 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.Javalin
 import io.javalin.http.NotFoundResponse
 import jzeus.core.json.jacksonObjectMapper
+import jzeus.io.asFile
+import jzeus.io.createIfNotExists
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-data class ConfigValue(val value: String)
-class Ariel(private val configFile: File = File("ariel_config.json")) {
-    private val configStore = mutableMapOf(
-        "dev" to mutableMapOf(),
-        "test" to mutableMapOf(),
-        "prod" to mutableMapOf<String, String>()
-    )
+const val DEFAULT_NAMESPACE = "default"
+
+class Ariel(private val configFile: File = "${DEFAULT_NAMESPACE}.json".asFile()) {
+    init {
+        configFile.createIfNotExists()
+    }
+
+    private val configStore = mutableMapOf<String, MutableMap<String, String>>()
 
     private val configLock = ReentrantLock()
     private val mapper = jacksonObjectMapper()
@@ -37,6 +40,13 @@ class Ariel(private val configFile: File = File("ariel_config.json")) {
         return configLock.withLock {
             configStore[env]?.toMap()
         }
+    }
+
+    fun deleteConfig(env: String, key: String) {
+        configLock.withLock {
+            configStore[env]?.remove(key)
+        }
+        saveConfigToFile()
     }
 
     private fun saveConfigToFile() {
@@ -71,43 +81,6 @@ class Ariel(private val configFile: File = File("ariel_config.json")) {
     }
 }
 
-fun main() {
-    val ariel = Ariel()
-    ariel.loadConfigFromFile()
-
-    val app = Javalin.create().start(7000)
-
-    app.get("/ariel/{env}/{key}") { ctx ->
-        val env = ctx.pathParam("env")
-        val key = ctx.pathParam("key")
-        val value = ariel.getConfig(env, key)
-        if (value != null) {
-            ctx.json(mapOf(key to value))
-        } else {
-            throw NotFoundResponse("Config not found")
-        }
-    }
-
-
-    app.put("/ariel/{env}/{key}") { ctx ->
-        val env = ctx.pathParam("env")
-        val key = ctx.pathParam("key")
-        val configValue = ctx.bodyAsClass(ConfigValue::class.java)
-        ariel.setConfig(env, key, configValue.value)
-        ctx.json(mapOf("success" to true))
-    }
-
-    app.get("/ariel/{env}") { ctx ->
-        val env = ctx.pathParam("env")
-        val config = ariel.getAllConfig(env)
-        if (config != null) {
-            ctx.json(config)
-        } else {
-            throw NotFoundResponse("Environment not found")
-        }
-    }
-
-    app.get("/ariel") { ctx ->
-        ctx.json(ariel.getAllEnvs())
-    }
+fun ariel(configFile: File = "${DEFAULT_NAMESPACE}.json".asFile(), block: Ariel.() -> Unit): Ariel {
+    return Ariel(configFile).apply(block)
 }
