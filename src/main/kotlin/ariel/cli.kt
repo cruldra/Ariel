@@ -25,10 +25,10 @@ class ArielCli {
         @CommandLine.Option(names = ["-e", "--env"], description = ["Environment (optional)"])
         var env: String = DEFAULT_NAMESPACE
 
-        @CommandLine.Option(names = ["-k", "--key"], required = true, description = ["Key"])
+        @CommandLine.Parameters(index = "0", description = ["Key"])
         lateinit var key: String
 
-        @CommandLine.Option(names = ["-v", "--value"], required = true, description = ["Value"])
+        @CommandLine.Parameters(index = "1", description = ["Value"])
         lateinit var value: String
 
         override fun run() {
@@ -43,7 +43,7 @@ class ArielCli {
         @CommandLine.Option(names = ["-e", "--env"], description = ["Environment (optional)"])
         var env: String = DEFAULT_NAMESPACE
 
-        @CommandLine.Option(names = ["-k", "--key"], required = true, description = ["Key"])
+        @CommandLine.Parameters(index = "0", description = ["Key"])
         lateinit var key: String
 
         override fun run() {
@@ -64,7 +64,7 @@ class ArielCli {
         @CommandLine.Option(names = ["-e", "--env"], description = ["Environment (optional)"])
         var env: String = DEFAULT_NAMESPACE
 
-        @CommandLine.Option(names = ["-k", "--key"], required = true, description = ["Key to delete"])
+        @CommandLine.Parameters(index = "0",  description = ["Key to delete"])
         lateinit var key: String
 
         override fun run() {
