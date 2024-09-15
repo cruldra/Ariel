@@ -48,7 +48,6 @@ class ArielCli {
 
         override fun run() {
             ariel("${env}.json".asFile()) {
-                loadConfigFromFile()
                 val value = getConfig(env, key)
                 if (value != null) {
                     println(value)
@@ -64,12 +63,11 @@ class ArielCli {
         @CommandLine.Option(names = ["-e", "--env"], description = ["Environment (optional)"])
         var env: String = DEFAULT_NAMESPACE
 
-        @CommandLine.Parameters(index = "0",  description = ["Key to delete"])
+        @CommandLine.Parameters(index = "0", description = ["Key to delete"])
         lateinit var key: String
 
         override fun run() {
             ariel("${env}.json".asFile()) {
-                loadConfigFromFile()
                 deleteConfig(env, key)
                 print("Key deleted")
             }
@@ -93,11 +91,10 @@ class ArielCli {
                 val env = ctx.pathParam("env")
                 val key = ctx.pathParam("key")
                 ariel("${env}.json".asFile()) {
-                    loadConfigFromFile()
                     val value = getConfig(env, key)
                     if (value != null) {
                         ctx.result(value)  // 直接返回值作为字符串
-                        ctx.contentType("text/plain")  // 设置内容类型为纯文本
+                        ctx.contentType("text/plain; charset=utf-8")
                     } else {
                         throw NotFoundResponse("Config not found")
                     }
